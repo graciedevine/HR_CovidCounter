@@ -31,35 +31,32 @@ def total_cases():
 
     # Extract total_cases from field; cast to int and then sum everything
     for r in data.values():
-        total = sum([int(i['total_cases']) for i in data.values()])
-        print('Confirmed Cases: ' + f"{total:,}")
+        total_cases = sum([int(i['total_cases']) for i in data.values()])
+        # print('Confirmed Cases: ' + f"{total_cases:,}")
         break
 
 
-def hospitalizations():
-    """Total number of hospitalizations in Hampton Roads."""
+# def hospitalizations():
+#     """Total number of hospitalizations in Hampton Roads."""
 
     # Extract hospitalizations from field; cast to int and then sum everything
     for r in data.values():
-        total = sum([int(i['hospitalizations']) for i in data.values()])
-        print('Hospitalizations: ' + f"{total:,}")
+        total_hosp = sum([int(i['hospitalizations']) for i in data.values()])
+        # print('Hospitalizations: ' + f"{total_hosp:,}")
         break
 
 
-def total_deaths():
-    """Total number of deaths in Hampton Roads."""
+# def total_deaths():
+#     """Total number of deaths in Hampton Roads."""
 
     # Extract deaths from field; cast to int and then sum everything
     for r in data.values():
-        total = sum([int(i['deaths']) for i in data.values()])
-        print('Deaths: ' + f"{total:,}")
+        total_deaths = sum([int(i['deaths']) for i in data.values()])
+        # print('Deaths: ' + f"{total_deaths:,}")
         break
 
 
-# def graph():
-#     """Graphs the 14-day moving average and number of confirmed cases."""
-
-def write_tweet():
+def write_tweet(data):
     """Uses daily COVID-19 data to write/format tweet"""
 
     # Convert the datetime into a string
@@ -76,9 +73,14 @@ def write_tweet():
     ''').strip()
     return tweet
 
-total_cases()
-hospitalizations()
-total_deaths()
+data = total_cases()
+# hospitalizations()
+# total_deaths()
+
+
+
+
+
 
 def send_tweet():
      # Authenticate to Twitter
@@ -101,3 +103,7 @@ def send_tweet():
     # Create tweet
     api.update_status(text)
     # (text, media_ids=[image.media_id, ])
+
+
+# def graph():
+#     """Graphs the 14-day moving average and number of confirmed cases."""
