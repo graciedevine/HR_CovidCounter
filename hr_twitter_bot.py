@@ -1,109 +1,83 @@
-# import requests
-# import tweepy
-# import textwrap
-# from datetime import datetime, timedelta
-
-# # Make an API call and store the response.
-# url = 'https://data.virginia.gov/resource/bre9-aqqr.json'
-# response = requests.get(url)
-
-# # Store an API response in a variable.
-# data_set = response.json()
-
-
+import tweepy
+import textwrap
+import requests
 import json
-with open('test.json') as f:
-    data_set = json.load(f)
+from datetime import datetime, timedelta
+from twitter_keys import consumer_key, consumer_key_secret, access_token, access_token_secret
+
+URL = 'https://data.virginia.gov/resource/bre9-aqqr.json'
+LOCALITIES = ['Chesapeake', 'Hampton', 'Newport News', 'Norfolk', 'Portsmouth', 'Suffolk', 'Virginia Beach']
+
+TOTAL = 'total_cases'
+HOSP = 'hospitalizations'
+DEATH = 'deaths'
+
+def get_raw_data(from_file = False):
+    if from_file:
+        with open('test.json') as f:
+            data_set = json.load(f)
+    else:
+        response = requests.get(URL)
+        data_set = response.json()
+
+    data = dict()
+    for entry in data_set:
+        locality = entry['locality']
+        if locality in LOCALITIES and locality not in data:
+            data[locality] = entry
+
+    return data
 
 
-# Create an empty dictionary; localities from this list will be inserted
-data = dict()
-localities = ['Chesapeake', 'Hampton', 'Newport News', 'Norfolk', 'Portsmouth', 'Suffolk', 'Virginia Beach']
-
-# Extract locality from the json and add entry to dictionary
-for entry in data_set:
-    locality = entry['locality']
-    if locality in localities and locality not in data:
-        data[locality] = entry
-
-def total_cases(): 
+def extract_key_info(data):
     """Total number of confirmed cases in Hampton Roads."""
 
-    # Extract total_cases from field; cast to int and then sum everything
-    for r in data.values():
-        total_cases = sum([int(i['total_cases']) for i in data.values()])
-        # print('Confirmed Cases: ' + f"{total_cases:,}")
-        break
+    fields = [TOTAL, HOSP, DEATH]
 
+    return {
+        field: sum([
+            int(info[field]) 
+            for locality, info in data.items()
+        ])
+        for field in fields
+    }
 
-# def hospitalizations():
-#     """Total number of hospitalizations in Hampton Roads."""
-
-    # Extract hospitalizations from field; cast to int and then sum everything
-    for r in data.values():
-        total_hosp = sum([int(i['hospitalizations']) for i in data.values()])
-        # print('Hospitalizations: ' + f"{total_hosp:,}")
-        break
-
-
-# def total_deaths():
-#     """Total number of deaths in Hampton Roads."""
-
-    # Extract deaths from field; cast to int and then sum everything
-    for r in data.values():
-        total_deaths = sum([int(i['deaths']) for i in data.values()])
-        # print('Deaths: ' + f"{total_deaths:,}")
-        break
-
-
-def write_tweet(data):
+def tweet_text(data):
     """Uses daily COVID-19 data to write/format tweet"""
 
-    # Convert the datetime into a string
     yesterday = datetime.today().date() - timedelta(days=1)
     yesterday_str = yesterday.strftime("%b %d")
 
-    # Format the tweet
     tweet = textwrap.dedent(f'''
-        Total Cases on {yesterday_str}: {data["total_cases"]:,}
-        Hospitalized on {yesterday_str}: {data["hospitalized"]:,}
-        Deaths on {yesterday_str}: {data['deaths']:,}
+        Total Cases on {yesterday_str}: {data[TOTAL]:,}
+        Hospitalized on {yesterday_str}: {data[HOSP]:,}
+        Deaths on {yesterday_str}: {data[DEATH]:,}
 
          Data taken from: https://www.vdh.virginia.gov/coronavirus/
     ''').strip()
     return tweet
 
-data = total_cases()
-# hospitalizations()
-# total_deaths()
 
-
-
-
-
-
-def send_tweet():
-     # Authenticate to Twitter
+def send_tweet(text):
     auth = tweepy.OAuthHandler(consumer_key, consumer_key_secret)
     auth.set_access_token(access_token, access_token_secret)
 
-    # Create API object
     api = tweepy.API(auth)
 
-    # Test credentials
     try:
         api.verify_credentials()
         print("Authentication OK")
     except:
         print("Error during authentication")
     
-    # Upload image of graph to tweet
     # image = api.media_upload('graph.png')
     
-    # Create tweet
     api.update_status(text)
     # (text, media_ids=[image.media_id, ])
 
-
-# def graph():
-#     """Graphs the 14-day moving average and number of confirmed cases."""
+if __name__ == '__main__':
+   data = get_raw_data()
+   data = extract_key_info(data=data)
+   text = tweet_text(data)
+   send_tweet(text)
+   print(text)
