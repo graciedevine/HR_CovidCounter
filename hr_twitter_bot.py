@@ -1,7 +1,7 @@
-import tweepy
-import textwrap
-import requests
 import json
+import tweepy
+import requests
+import textwrap
 from datetime import datetime, timedelta
 from twitter_keys import consumer_key, consumer_key_secret, access_token, access_token_secret
 
