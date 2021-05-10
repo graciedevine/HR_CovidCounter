@@ -66,12 +66,13 @@ def tweet_text(data):
         Deaths as of {today_str}: {data[DEATH]:,}
 
         Data taken from: https://www.vdh.virginia.gov/coronavirus/
+        *Bot runs daily at noon; VDH data update time and dates vary.
     """
     ).strip()
     return tweet
 
 
-def graph_this_shit(data):
+def graph_moving_average(data):
 
     daily_data = pd.DataFrame(data)
     for col in [DEATH, HOSP, TOTAL]:
@@ -115,5 +116,5 @@ if __name__ == "__main__":
     data = extract_summary_info(raw_data=raw_data)
     text = tweet_text(data)
     send_tweet(text)
-    graph_this_shit(raw_data)
+    graph_moving_average(raw_data)
     print(text)
