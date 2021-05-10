@@ -23,6 +23,7 @@ LOCALITIES = [
     "Virginia Beach",
 ]
 
+# Assign variable names in case there's a change in API
 TOTAL = "total_cases"
 HOSP = "hospitalizations"
 DEATH = "deaths"
@@ -81,15 +82,15 @@ def graph_moving_average(data):
     daily_data[RDATE] = pd.to_datetime(daily_data[RDATE])
     daily_data = daily_data[daily_data.locality.isin(LOCALITIES)].groupby(RDATE).sum()
 
-    daily_data["New Positive Cases"] = daily_data["total_cases"]
+    daily_data["7-day Moving Average"] = daily_data["total_cases"]
     daily_data["New 14-day Moving Average"] = (
-        daily_data["New Positive Cases"].rolling(7).mean()
+        daily_data["7-day Moving Average"].rolling(7).mean()
     )
-    daily_data[["New Positive Cases", "New 14-day Moving Average"]].plot()
+    daily_data[["7-day Moving Average", "New 14-day Moving Average"]].plot()
 
-    plt.title("DAILY POSITIVE COVID-19 CASES IN VIRGINIA")
-    plt.ylabel("Increase in Positive Cases from Previous Day")
-    plt.xlabel("Dates (last 120 days")
+    plt.title("7-DAY MOVING AVERAGE: COVID-19 CASES IN HAMPTON ROADS")
+    plt.ylabel("Total Current Cases in Hampton Roads")
+    plt.xlabel("Dates (last 7 days)")
     plt.show()
 
 
